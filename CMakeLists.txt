@@ -1,13 +1,18 @@
 cmake_minimum_required(VERSION 3.16)
 
 #Project name
-set(TARGET_NAME Temp)
+set(TARGET_NAME Test)
 
 #You can change this to Qt5 if you
 #are not ready to migrate to Qt6.
 set(QT_MAJOR_VERSION 5)
 
 project(${TARGET_NAME} VERSION 0.0.1 DESCRIPTION "Project Description")
+
+set(PROJECT_OUTPUT_DIR "${PROJECT_BINARY_DIR}/../output")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_OUTPUT_DIR} )
+set(EXECUTABLE_OUTPUT_PATH "${PROJECT_OUTPUT_DIR}")
+set(LIBRARY_OUTPUT_PATH "${PROJECT_OUTPUT_DIR}")
 
 #Make sure CMake will take care of moc for us
 set(CMAKE_AUTOMOC ON)
