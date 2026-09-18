@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 #Project name
-set(TARGET_NAME Test)
+set(TARGET_NAME VideoBrowser)
 
 #You can change this to Qt5 if you
 #are not ready to migrate to Qt6.
@@ -30,7 +30,7 @@ endif()
 
 #find_package should find everything fine so long as the ENV Variable is set or, for linux systems,
 #it is in the default install path.
-find_package(Qt${QT_MAJOR_VERSION} COMPONENTS Widgets REQUIRED PATHS $ENV{Qt${QT_MAJOR_VERSION}_HOME})
+find_package(Qt${QT_MAJOR_VERSION} COMPONENTS Widgets Multimedia MultimediaWidgets REQUIRED PATHS $ENV{Qt${QT_MAJOR_VERSION}_HOME})
 
 add_executable(${TARGET_NAME}
     include/window.hpp
@@ -38,7 +38,7 @@ add_executable(${TARGET_NAME}
     src/main.cpp)
     
 if(MSVC)
-    target_compile_options(${TARGET_NAME} PRIVATE /W4 /WX)
+    target_compile_options(${TARGET_NAME} PRIVATE /W4 /WX /utf-8)
 else()
     target_compile_options(${TARGET_NAME} PRIVATE -Wall -Wextra -pedantic -Werror)
 endif()
@@ -49,4 +49,22 @@ target_include_directories(${TARGET_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/include)
 set_target_properties(${TARGET_NAME} PROPERTIES DEBUG_OUTPUT_NAME "${TARGET_NAME}d" RELEASE_OUTPUT_NAME ${TARGET_NAME})
 
 #Add any extra libs to link also.
-target_link_libraries(${TARGET_NAME} PRIVATE Qt${QT_MAJOR_VERSION}::Widgets)
+target_link_libraries(${TARGET_NAME} PRIVATE
+    Qt${QT_MAJOR_VERSION}::Widgets
+    Qt${QT_MAJOR_VERSION}::Multimedia
+    Qt${QT_MAJOR_VERSION}::MultimediaWidgets)
+
+if(WIN32)
+    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+            "$<TARGET_FILE_DIR:${TARGET_NAME}>/mediaservice"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${Qt${QT_MAJOR_VERSION}_DIR}/../../../plugins/mediaservice/wmfengine.dll"
+            "$<TARGET_FILE_DIR:${TARGET_NAME}>/mediaservice/wmfengine.dll"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${Qt${QT_MAJOR_VERSION}_DIR}/../../../plugins/mediaservice/dsengine.dll"
+            "$<TARGET_FILE_DIR:${TARGET_NAME}>/mediaservice/dsengine.dll"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${Qt${QT_MAJOR_VERSION}_DIR}/../../../plugins/mediaservice/qtmedia_audioengine.dll"
+            "$<TARGET_FILE_DIR:${TARGET_NAME}>/mediaservice/qtmedia_audioengine.dll")
+endif()
