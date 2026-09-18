@@ -33,7 +33,7 @@ endif()
 find_package(Qt${QT_MAJOR_VERSION} COMPONENTS Widgets Multimedia MultimediaWidgets REQUIRED PATHS $ENV{Qt${QT_MAJOR_VERSION}_HOME})
 
 add_executable(${TARGET_NAME}
-    include/window.hpp
+    src/window.h
     src/window.cpp
     src/main.cpp)
     
