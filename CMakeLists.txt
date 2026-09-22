@@ -79,21 +79,16 @@ if(WIN32)
             ABSOLUTE)
     endif()
 
-    find_program(QT_DEPLOY_TOOL
-        NAMES windeployqt.exe windeployqt
-        HINTS "${QT_HOME}/bin")
-
-    if(QT_DEPLOY_TOOL)
+    if(EXISTS "${QT_HOME}/bin/Qt5Core.dll")
         add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-            COMMAND "${QT_DEPLOY_TOOL}"
-                --release
-                --no-translations
-                --multimedia
-                "$<TARGET_FILE:${TARGET_NAME}>"
-            COMMENT "Deploying Qt runtime and plugins")
+            COMMAND "${CMAKE_COMMAND}"
+                -DQT_HOME=${QT_HOME}
+                -DDEPLOY_DIR=$<TARGET_FILE_DIR:${TARGET_NAME}>
+                -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/DeployQtRuntime.cmake"
+            COMMENT "Copying Qt runtime and plugins")
     else()
         message(WARNING
-            "windeployqt was not found. Set QT_HOME to a Qt installation directory "
-            "containing bin/windeployqt.exe.")
+            "Qt runtime was not found under QT_HOME. Expected "
+            "${QT_HOME}/bin/Qt5Core.dll.")
     endif()
 endif()

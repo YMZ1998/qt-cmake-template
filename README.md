@@ -15,3 +15,6 @@ For example:
 
     Qt5_HOME = C:\Users\Andrew\Documents\Qt\5.15.2\msvc2019_64
     Qt6_HOME = C:\Users\Andrew\Documents\Qt\6.0.1\msvc2019_64
+
+视频无法解析 安装K-Lite
+https://www.codecguide.com/download_kl.htm
