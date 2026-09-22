@@ -23,7 +23,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(QT_HOME "D:/Software/QT/5.12.12/msvc2017_64")
 # Qt's package files live below the compiler kit directory, for example:
-# D:/Software/QT/5.12.12/msvc2017_64/lib/cmake/Qt5/Qt5Config.cmake
+# ${QT_HOME}/lib/cmake/Qt5/Qt5Config.cmake
 set(QT_PACKAGE_HINTS)
 if(DEFINED QT_HOME)
     message(STATUS "Looking for Qt in: ${QT_HOME}")
@@ -73,16 +73,27 @@ target_link_libraries(${TARGET_NAME} PRIVATE
     Qt${QT_MAJOR_VERSION}::MultimediaWidgets)
 
 if(WIN32)
-    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory
-            "$<TARGET_FILE_DIR:${TARGET_NAME}>/mediaservice"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${Qt${QT_MAJOR_VERSION}_DIR}/../../../plugins/mediaservice/wmfengine.dll"
-            "$<TARGET_FILE_DIR:${TARGET_NAME}>/mediaservice/wmfengine.dll"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${Qt${QT_MAJOR_VERSION}_DIR}/../../../plugins/mediaservice/dsengine.dll"
-            "$<TARGET_FILE_DIR:${TARGET_NAME}>/mediaservice/dsengine.dll"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${Qt${QT_MAJOR_VERSION}_DIR}/../../../plugins/mediaservice/qtmedia_audioengine.dll"
-            "$<TARGET_FILE_DIR:${TARGET_NAME}>/mediaservice/qtmedia_audioengine.dll")
+    if(NOT DEFINED QT_HOME AND DEFINED Qt${QT_MAJOR_VERSION}_DIR)
+        get_filename_component(QT_HOME
+            "${Qt${QT_MAJOR_VERSION}_DIR}/../../.."
+            ABSOLUTE)
+    endif()
+
+    find_program(QT_DEPLOY_TOOL
+        NAMES windeployqt.exe windeployqt
+        HINTS "${QT_HOME}/bin")
+
+    if(QT_DEPLOY_TOOL)
+        add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+            COMMAND "${QT_DEPLOY_TOOL}"
+                --release
+                --no-translations
+                --multimedia
+                "$<TARGET_FILE:${TARGET_NAME}>"
+            COMMENT "Deploying Qt runtime and plugins")
+    else()
+        message(WARNING
+            "windeployqt was not found. Set QT_HOME to a Qt installation directory "
+            "containing bin/windeployqt.exe.")
+    endif()
 endif()
