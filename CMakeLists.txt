@@ -21,16 +21,34 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-#See if the environment var is set
-if(DEFINED ENV{Qt${QT_MAJOR_VERSION}_HOME})
-    message(STATUS "Looking for Qt in: " $ENV{Qt${QT_MAJOR_VERSION}_HOME})
+set(QT_HOME "D:/Software/QT/5.12.12/msvc2017_64")
+# Qt's package files live below the compiler kit directory, for example:
+# D:/Software/QT/5.12.12/msvc2017_64/lib/cmake/Qt5/Qt5Config.cmake
+set(QT_PACKAGE_HINTS)
+if(DEFINED QT_HOME)
+    message(STATUS "Looking for Qt in: ${QT_HOME}")
+    list(APPEND QT_PACKAGE_HINTS
+        "${QT_HOME}"
+        "${QT_HOME}/lib/cmake/Qt5")
+elseif(DEFINED Qt${QT_MAJOR_VERSION}_DIR)
+    list(APPEND QT_PACKAGE_HINTS "${Qt${QT_MAJOR_VERSION}_DIR}")
+endif()
+
+if(NOT DEFINED QT_HOME AND DEFINED ENV{Qt${QT_MAJOR_VERSION}_HOME})
+    set(QT_HOME "$ENV{Qt${QT_MAJOR_VERSION}_HOME}")
+    message(STATUS "Looking for Qt in: ${QT_HOME}")
+    list(APPEND QT_PACKAGE_HINTS
+        "${QT_HOME}"
+        "${QT_HOME}/msvc2017_64/lib/cmake/Qt5"
+        "${QT_HOME}/msvc2015_64/lib/cmake/Qt5"
+        "${QT_HOME}/msvc2019_64/lib/cmake/Qt5")
 else()
     message(STATUS "Qt${QT_MAJOR_VERSION}_HOME environment variable not set. Checking default paths.")
 endif()
 
-#find_package should find everything fine so long as the ENV Variable is set or, for linux systems,
-#it is in the default install path.
-find_package(Qt${QT_MAJOR_VERSION} COMPONENTS Widgets Multimedia MultimediaWidgets REQUIRED PATHS $ENV{Qt${QT_MAJOR_VERSION}_HOME})
+find_package(Qt${QT_MAJOR_VERSION} CONFIG REQUIRED
+    COMPONENTS Widgets Multimedia MultimediaWidgets
+    PATHS ${QT_PACKAGE_HINTS})
 
 add_executable(${TARGET_NAME}
     src/window.h
