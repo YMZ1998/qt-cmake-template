@@ -21,7 +21,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(QT_HOME "D:/Software/QT/5.12.12/msvc2017_64")
+set(QT_HOME "D:/Software/QT/5.15.2/msvc2019_64")
 # Qt's package files live below the compiler kit directory, for example:
 # ${QT_HOME}/lib/cmake/Qt5/Qt5Config.cmake
 set(QT_PACKAGE_HINTS)
